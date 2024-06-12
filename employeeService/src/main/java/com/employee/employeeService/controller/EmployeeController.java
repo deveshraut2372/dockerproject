@@ -4,6 +4,7 @@ package com.employee.employeeService.controller;
 import com.employee.employeeService.dao.EmployeeDao;
 import com.employee.employeeService.dto.EmployeeReq;
 import com.employee.employeeService.entity.Employee;
+import com.employee.employeeService.service.EmployeeService;
 import lombok.Getter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,52 +17,45 @@ import org.springframework.web.bind.annotation.*;
 public class EmployeeController {
 
   @Autowired
-  private EmployeeDao employeeDao;
+  private EmployeeService employeeService;
 
 
   @PostMapping(value = "/create")
   public ResponseEntity createEmployee(@RequestBody EmployeeReq employeeReq)
   {
-    try{
-      Employee employee=new Employee();
-      BeanUtils.copyProperties(employeeReq,employee);
-      employeeDao.save(employee);
-      return ResponseEntity.ok().body(true);
-    }catch (Exception e)
+    Boolean flag;
+    flag=employeeService.createEmployee(employeeReq);
+
+    if(flag)
     {
-      e.printStackTrace();
-      return ResponseEntity.badRequest().body(false);
+      return new ResponseEntity( flag,HttpStatus.OK);
+    }else {
+      return new ResponseEntity(flag,HttpStatus.BAD_REQUEST);
     }
-
   }
-
 
   @GetMapping(value = "/getAll")
   public ResponseEntity getAll()
   {
-    return ResponseEntity.ok(employeeDao.findAll());
+    return new ResponseEntity(employeeService.getAll(),HttpStatus.OK);
   }
 
   @PutMapping(value = "/update")
   public ResponseEntity updateEmployee(@RequestBody EmployeeReq employeeReq)
   {
-    try{
-      Employee employee=new Employee();
-      BeanUtils.copyProperties(employeeReq,employee);
-      employee.setEmployeeId(employeeReq.getEmployeeId());
-      employeeDao.save(employee);
-      return ResponseEntity.ok().body(true);
-    }catch (Exception e)
+   Boolean flag=employeeService.updateEmployee(employeeReq);
+    if(flag)
     {
-      e.printStackTrace();
-      return ResponseEntity.badRequest().body(false);
+      return new ResponseEntity( flag,HttpStatus.OK);
+    }else {
+      return new ResponseEntity(flag,HttpStatus.BAD_REQUEST);
     }
   }
 
   @GetMapping(value = "/getById/{employeeId}")
-  public ResponseEntity createEmployee(@PathVariable("employeeId") Integer employeeId)
+  public ResponseEntity getById(@PathVariable("employeeId") Integer employeeId)
   {
-    return ResponseEntity.ok().body(employeeDao.findById(employeeId));
+    return new ResponseEntity(employeeService.getById(employeeId),HttpStatus.OK);
   }
 
 }
